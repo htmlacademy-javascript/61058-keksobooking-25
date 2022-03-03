@@ -29,7 +29,7 @@ const getRandomFloat = (min, max, digits = 0) => {
 const TITLES = [
   'Сдам уютную студию!',
   '5 минут пешком до метро!',
-  'Топ предложение в район!е',
+  'Топ предложение в районе!',
   'Успейте снять по старой цене!',
   'Окна на парк!',
   'Жк бизнес класса!',
@@ -51,7 +51,6 @@ const TIMES = [
   '14:00'
 ];
 
-// FEATURES НУЖНО КАК ТО ЗАПИСЫВАТЬ В НОВЫЙ МАССИВ, БЕЗ ПОВТОРЕНИЙ, НЕ ПОНИМАЮ, КАК..
 const FEATURES = [
   'wifi',
   'dishwasher',
@@ -68,67 +67,75 @@ const DESCRIPTIONS = [
   'В подъезде имеется консьерж. Ведётся видеонаблюдение'
 ];
 
-// PHOTOS - ТОЖЕ САМОЕ, НУЖНО ЗАПИСЫВАТЬ В НОВЫЙ МАССИВ
 const PHOTOS = [
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/duonguyen-8LrGtIxxa4w.jpg',
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/brandon-hoogenboom-SNxQGWxZQi0.jpg',
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/claire-rendall-b6kAwr1i0Iw.jpg'
 ];
 
-// Не понимаю вот эту функцию до конца. То ли параметр глупый, то ли я бы сменил параметр на параметр типа array.
-// array => array[getRandomFloat(0, array.length - 1)]; - так кажется очевиднее. В демонстрации написано elements, why?
-const getRandomArrayElement = (elements) => elements[getRandomFloat(0, elements.length - 1)];
+const getRandomElement = (elements) => elements[getRandomFloat(0, elements.length - 1)];
 
-// generateAvatar (получилось странное решение, но эта функция хотя бы генерирует правильно элементы массива
-// не понимаю, как доработать до такого состояния, когда в возвращаемом объекте будут пути, которые не будут повторяться.
-const generateAvatar = () => {
-  const array = [];
-  let path = '';
+const shuffleArray = (array, length = array.length) => {
+  for (let i = 0; i < length; i++) {
+    const index = getRandomFloat(0, array.length - 1);
+    const swap = array[i];
 
-  for (let i = 1; i <= 10; i++) {
-    i < 10 ? path = 'img/avatars/user0' + i + '.png' : path = 'img/avatars/user' + i + '.png';
-    array[i - 1] = path;
+    array[i] = array[index];
+    array[index] = swap;
   }
-
-  return getRandomArrayElement(array);
 };
 
-const generateAd = () => {
-  // Как обойтись без этого объекта? А только передавать location.lat and location.lng. Наверное это области видимости..
-  const locationData = {
-    x: getRandomFloat(35.65000, 35.70000, 5),
-    y: getRandomFloat(139.70000, 139.80000, 5)
+const getRandomElements = (array) => {
+  const clonedArray = array.slice();
+  const arrayLength = getRandomFloat(1, clonedArray.length);
+  shuffleArray(clonedArray, arrayLength);
+
+  return clonedArray.slice(0, arrayLength);
+};
+
+const generateAvatars = () => {
+  const array = [];
+
+  for (let i = 0; i < 10; i++) {
+    array[i] = i < 9 ? `img/avatars/user0${i + 1}.png` : `img/avatars/user${i + 1}.png`;
+  }
+
+  shuffleArray(array);
+
+  return array;
+};
+
+const generateAd = (avatar) => {
+  const location = {
+    lat: getRandomFloat(35.65000, 35.70000, 5),
+    lng: getRandomFloat(139.70000, 139.80000, 5)
   };
 
   return {
     author: {
-      avatar: generateAvatar(),
+      avatar: avatar,
     },
     offer: {
-      title: getRandomArrayElement(TITLES),
-      address: locationData.x + ', ' + locationData.y,
+      title: getRandomElement(TITLES),
+      address: `${location.lat}, ${location.lng}`,
       price: getRandomFloat(30000, 120000),
-      type: getRandomArrayElement(TYPES),
+      type: getRandomElement(TYPES),
       rooms: getRandomFloat(1, 10),
       guests: getRandomFloat(1, 10),
-      checking: getRandomArrayElement(TIMES),
-      checkout: getRandomArrayElement(TIMES),
-      features: FEATURES, // ['array', 'of', 'strings']
-      description: getRandomArrayElement(DESCRIPTIONS),
-      photos: PHOTOS, // ['array', 'of', 'strings']
+      checking: getRandomElement(TIMES),
+      checkout: getRandomElement(TIMES),
+      features: getRandomElements(FEATURES),
+      description: getRandomElement(DESCRIPTIONS),
+      photos: getRandomElements(PHOTOS)
     },
-    // в location.lat and location.lng вызывал функцию getRandomFloat().
-    // Вроде все работает, но, когда в address передаю location.lat and location.lng - выводится undefine? Это области видимости?
-    location: {
-      lat: locationData.x,
-      lng: locationData.y
-    }
+    location
   };
 };
 
 const objectsArray = [];
+const avatarsArray = generateAvatars();
 for (let i = 0; i < 10; i++) {
-  objectsArray[i] = generateAd();
+  objectsArray[i] = generateAd(avatarsArray[i]);
 }
 
 console.log(objectsArray);
