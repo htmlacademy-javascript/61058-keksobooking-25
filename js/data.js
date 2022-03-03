@@ -97,6 +97,6 @@ const getObjectsArray = () => {
   }
 
   return objectsArray;
-}
+};
 
 export {getObjectsArray};
